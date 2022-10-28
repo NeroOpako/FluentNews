@@ -1,0 +1,79 @@
+﻿<Page
+    x:Class="FluentNews.Views.ShellPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:FluentNews.Helpers"
+    xmlns:behaviors="using:FluentNews.Behaviors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:data="using:FluentNews.Models"
+    Loaded="OnLoaded">
+
+    <Page.Resources>
+        <DataTemplate x:Key="CategoryTemplate" x:DataType="data:Category">
+            <NavigationViewItem Tag="{x:Bind Id}" Content="{x:Bind Name}">
+                <NavigationViewItem.Icon>
+                    <BitmapIcon ShowAsMonochrome="False" UriSource="{x:Bind IconUri}"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+       
+    </Page.Resources>
+
+    <Grid>
+        <Grid x:Name="AppTitleBar"
+              Canvas.ZIndex="1"
+              Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+              IsHitTestVisible="True"
+              VerticalAlignment="Top">
+            <Image Source="/Assets/WindowIcon.ico"
+                   HorizontalAlignment="Left"
+                   Width="16"
+                   Height="16" />
+            <TextBlock x:Name="AppTitleBarText"
+                       VerticalAlignment="Center"
+                       TextWrapping="NoWrap"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Margin="28,0,0,0"/>
+        </Grid>
+        <NavigationView
+            x:Name="NavigationViewControl"
+            Canvas.ZIndex="0"
+            IsBackButtonVisible="Collapsed"
+            IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
+            SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}"
+            IsSettingsVisible="True"
+            MenuItemTemplate="{StaticResource CategoryTemplate}" 
+            ExpandedModeThresholdWidth="1280"
+            DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
+            SelectionChanged="NavigationViewControl_SelectionChanged"
+            PaneDisplayMode="LeftMinimal"
+            Header="{x:Bind ((data:Category)ViewModel.Selected), Mode=OneWay}">
+            <i:Interaction.Behaviors>
+                <behaviors:NavigationViewHeaderBehavior
+                    DefaultHeader="{x:Bind ((data:Category)ViewModel.Selected), Mode=OneWay}">
+                    <behaviors:NavigationViewHeaderBehavior.DefaultHeaderTemplate>
+                        <DataTemplate x:DataType="data:Category">
+                            <Grid>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"  Orientation="Vertical">
+                                    <TextBlock 
+                                        Text="{x:Bind Name}"
+                                        TextWrapping="WrapWholeWords"
+                                        FontWeight="Bold"
+                                        FontSize="40sp"/>
+                                </StackPanel>
+                                
+                            </Grid>
+                        </DataTemplate>
+                    </behaviors:NavigationViewHeaderBehavior.DefaultHeaderTemplate>
+                </behaviors:NavigationViewHeaderBehavior>
+            </i:Interaction.Behaviors>
+            <Grid>
+                <Frame Margin="0,20,0,20" x:Name="NavigationFrame">
+                    
+                </Frame>
+            </Grid>
+        </NavigationView>
+    </Grid>
+</Page>

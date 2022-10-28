@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "FluentNews (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "FluentNews (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}
