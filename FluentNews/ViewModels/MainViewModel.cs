@@ -8,6 +8,7 @@ using FluentNews.Services;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Windows.Foundation;
+using Windows.UI.Core;
 using static FluentNews.ViewModels.ShellViewModel;
 
 namespace FluentNews.ViewModels;
@@ -16,24 +17,28 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
 {
     private ObservableCollection<ItemModel> _list;
     public delegate void SelectedItemChangedHandler(object sender, Category selectedItem);
-    public delegate void Visi(object sender, Category selectedItem);
+    public delegate void VisualStateChangedEventHandler(object sender, Visibility selectedItem);
+    public delegate void BooleanChangedEventHandler(object sender, Boolean enabled);
+
 
     public event SelectedItemChangedHandler SelectedItemChanged;
-    public event VisualStateChangedEventHandler VisibilityItemChanged;
+    public event VisualStateChangedEventHandler VisibilityChanged;
+    public event BooleanChangedEventHandler BooleanChanged;
 
     private Category _selectedItem = null;
-    private Visibility noNewsStatus;
+    private Boolean _buttonMarkReadEnabled;
     Windows.Storage.ApplicationDataContainer localSettings;
 
-    public Visibility NoNewsStatus
+
+    public Boolean ButtonMarkReadVisibility
     {
-        get 
+        get
         {
-            return noNewsStatus;
+            return _buttonMarkReadEnabled;
         }
         set
         {
-            noNewsStatus = value; VisibilityItemChanged?.Invoke(this, noNewsStatus);
+            _buttonMarkReadEnabled = value; BooleanChanged?.Invoke(this, _buttonMarkReadEnabled); OnPropertyChanged("ButtonMarkReadVisibility");
         }
     }
 
@@ -63,7 +68,7 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
     };
 
 
-    public event RefreshEventHandler RefreshComplete;
+    //public event RefreshEventHandler RefreshComplete;
 
 
 
@@ -92,7 +97,7 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
         {
             //DJ: Calling the RefreshComplete callback here is valid, since erroring out here means the refresh can not continue.
             //TODO: Catch the right exception
-            RefreshComplete?.Invoke(this, (ShellViewModel.Result)Result.ConnectionError);
+            //RefreshComplete?.Invoke(this, (ShellViewModel.Result)Result.ConnectionError);
         }
     }
 
@@ -104,6 +109,7 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
             NextcloudNewsInterface.getInstance().invalidateCache();
             var backendItems = await NextcloudNewsInterface.getInstance().getItems(showAll, -1, 0, id);
             _list.Clear();
+            _buttonMarkReadEnabled = false;
             foreach (var item in backendItems.items)
             {
                 var existingItem = (from ItemModel selitem in _list where selitem.id == item.id select selitem).FirstOrDefault<ItemModel>();
@@ -115,6 +121,7 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
                     else
                         newItem.weight = FontWeights.Normal;
                     _list.Add(newItem);
+                    _buttonMarkReadEnabled = true;
                 }
             }
         }
@@ -125,7 +132,7 @@ public class MainViewModel : ObservableRecipient,INotifyPropertyChanged
         }
         finally
         {
-            RefreshComplete?.Invoke(this, (ShellViewModel.Result)errorCondition);
+            //RefreshComplete?.Invoke(this, (ShellViewModel.Result)errorCondition);
         }
 
     }

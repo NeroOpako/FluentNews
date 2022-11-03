@@ -31,19 +31,20 @@ public sealed partial class MainPage : Page
         base.OnNavigatedTo(e);
         var item = e.Parameter as Category;
 
-        EmptyListText.Visibility = Visibility.Collapsed;
-        LoadingProcessProgressRing.IsActive = true;
+      //  EmptyListText.Visibility = Visibility.Collapsed;
+      //  LoadingProcessProgressRing.IsActive = true;
 
         if (item != null)
         {
             ViewModel.SelectedItem = item;
-            ViewModel.LoadFeedItemsByFeedIdAsync(item.Id, item.Name != "Unread articles");
+           
         } else {
             ViewModel.SelectedItem = new Category();
-            ViewModel.LoadFeedItemsByFeedIdAsync(0, false);
+            ViewModel.SelectedItem.Name = "Unread articles";
         }
-        EmptyListText.Visibility = ViewModel.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        LoadingProcessProgressRing.IsActive = false;
+        ViewModel.LoadFeedItemsByFeedIdAsync(ViewModel.SelectedItem.Id, ViewModel.SelectedItem.Name != "Unread articles");
+        //   EmptyListText.Visibility = ViewModel.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        //    LoadingProcessProgressRing.IsActive = false;
 
     }
 
@@ -97,4 +98,15 @@ public sealed partial class MainPage : Page
         }
     }
 
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.LoadFeedItemsByFeedIdAsync(ViewModel.SelectedItem.Id, ViewModel.SelectedItem.Name != "Unread articles");
+    }
+
+    private void ButtonMarkRead_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (ItemModel item in ViewModel.Items) {
+            ViewModel.toggleReadStatus(item);
+        }
+    }
 }
